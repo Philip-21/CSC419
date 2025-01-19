@@ -1,0 +1,124 @@
+definitions:
+  models.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      token:
+        type: string
+    type: object
+  models.LoginResponse:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      role:
+        type: string
+      token:
+        type: string
+      user_uuid:
+        type: string
+    type: object
+  models.SignUpRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+    type: object
+  models.SignUpResponse:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      role:
+        type: string
+      token:
+        type: string
+      user_uuid:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: Group 14 Hospital Information System
+paths:
+  /signin/doctor:
+    post:
+      parameters:
+      - description: payload
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+      summary: Login as a Doctor
+      tags:
+      - Authentication Handlers
+  /signin/patient:
+    post:
+      parameters:
+      - description: payload
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.LoginResponse'
+      summary: Login as a Patient
+      tags:
+      - Authentication Handlers
+  /signup/doctor:
+    post:
+      parameters:
+      - description: payload
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignUpRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.SignUpResponse'
+      summary: Register as a Doctor
+      tags:
+      - Authentication Handlers
+  /signup/patient:
+    post:
+      parameters:
+      - description: payload
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignUpRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.SignUpResponse'
+      summary: Register as a Patient
+      tags:
+      - Authentication Handlers
+swagger: "2.0"
