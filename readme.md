@@ -23,19 +23,19 @@ D.	Enable secure authentication mechanism across the system for both patients an
 
 #### 2. Implement the Database Application
 
-    A. Application Stack
-        Backend: The system will use a server-side language like  Golang  or Python (Flask/FastAPI) for handling     
-        database operations and API requests.
+A. Application Stack
+    Backend: The system will use a server-side language like Golang for handling     
+    database operations and API requests.
 
-    B. CRUD Operations
-        The application will support the following core operations:
-            1.	Create: Add new records (e.g., register patients or schedule appointments).
-            2.	Read: Retrieve data (e.g., view patient appointments or doctor lists).
-            3.	Update: Modify existing records (e.g., update patient information).
-            4.	Delete: Remove obsolete records (e.g., outdated appointments).
-    C. Software Documentation
-        API documentation will be generated using Swagger, providing details of endpoints and enabling testing via 
-        an interactive interface.
+B. CRUD Operations
+    The application will support the following core operations:
+        1.	Create: Add new records (e.g., register patients or schedule appointments).
+        2.	Read: Retrieve data (e.g., view patient appointments or doctor lists).
+        3.	Update: Modify existing records (e.g., update patient information).
+        4.	Delete: Remove obsolete records (e.g., outdated appointments).
+C. Software Documentation
+    API documentation will be generated using Swagger, providing details of endpoints and enabling testing via 
+    an interactive interface.
 
 
 
