@@ -4,7 +4,7 @@ import "time"
 
 type Appointment struct {
 	AppointmentID int       `gorm:"column:appointment_id;primary_key"`
-	PatientID     int       `gorm:"column:pateint_id"`
+	PatientID     int       `gorm:"column:patient_id"`
 	DoctorID      int       `gorm:"column:doctor_id"`
 	PatientUUID   string    `gorm:"column:patient_uuid"`
 	DoctorUUID    string    `gorm:"column:doctor_uuid"`

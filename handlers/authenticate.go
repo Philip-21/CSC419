@@ -107,7 +107,7 @@ func (h *HandlerService) LoginDoctor(ctx *gin.Context) {
 	}
 	resp, err := database.AuthenticateDoctor(h.DB, req.Email, req.Password)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid credentials"})
 		return
 	}
 	token, err := middleware.GenerateToken(req.Email)
@@ -141,7 +141,7 @@ func (h *HandlerService) LoginPatient(ctx *gin.Context) {
 	}
 	resp, err := database.AuthenticatePatient(h.DB, req.Email, req.Password)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid credentials"})
 		return
 	}
 	token, err := middleware.GenerateToken(req.Email)
