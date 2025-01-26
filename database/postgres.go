@@ -40,8 +40,8 @@ func ConnectToDB(dsn string) (*gorm.DB, error) {
 }
 
 func AlterTables(db *gorm.DB) error {
-	query := 
-	`
+	query :=
+		`
 	ALTER TABLE appointments ADD FOREIGN KEY (doctor_id)  REFERENCES doctors(doctor_id);
 	ALTER TABLE appointments ADD FOREIGN KEY (patient_id) REFERENCES patients(patient_id);
 	`

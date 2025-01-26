@@ -67,3 +67,13 @@ func CheckDoctorEmailExist(db *gorm.DB, email string) error {
 	}
 	return nil
 }
+
+func GetDoctor(db *gorm.DB, email string) (*models.Doctor, error) {
+	var doc *models.Doctor
+
+	err := db.Where("email = ?", email).Error
+	if err != nil {
+		return nil, fmt.Errorf("unable to get doctor by mail %s", err)
+	}
+	return doc, nil
+}
