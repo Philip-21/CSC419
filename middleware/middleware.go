@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -71,4 +72,30 @@ func getClaims(tokenString string) (*JwtClaims, error) {
 		return claims, nil
 	}
 	return nil, errors.New("invalid token")
+}
+
+func Auth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Retrieve the Authorization header
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			log.Println("Authorization header required")
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized, Authorization required"})
+			c.Abort()
+			return
+		}
+
+		tokenString := strings.TrimSpace(strings.Replace(authHeader, "Bearer", "", 1))
+		claims, err := getClaims(tokenString)
+		if err != nil {
+			log.Println("invalid or expired token:", err)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired token"})
+			c.Abort()
+			return
+		}
+
+		// Set the user ID in the request context
+		c.Set("claims", claims)
+		c.Next()
+	}
 }

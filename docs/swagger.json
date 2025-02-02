@@ -5,6 +5,119 @@
         "contact": {}
     },
     "paths": {
+        "/appointment/all": {
+            "get": {
+                "tags": [
+                    "Appointment Handlers"
+                ],
+                "summary": "Doctor gets all his appointments",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AppointmentResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/appointment/book": {
+            "post": {
+                "tags": [
+                    "Appointment Handlers"
+                ],
+                "summary": "Patient books an appointment",
+                "parameters": [
+                    {
+                        "description": "payload",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.AppointmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.AppointmentResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/appointment/{appointmentid}": {
+            "get": {
+                "tags": [
+                    "Appointment Handlers"
+                ],
+                "summary": "Get an appointment, Doctor or Patient views an appointment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Apointment UUID",
+                        "name": "appointmentid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.AppointmentResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Appointment Handlers"
+                ],
+                "summary": "Delete an appointment by a Doctor or Patient",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Apointment UUID",
+                        "name": "appointmentid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Appointment deleted successfully"
+                    }
+                }
+            }
+        },
+        "/appointment/{patientid}": {
+            "delete": {
+                "tags": [
+                    "Appointment Handlers"
+                ],
+                "summary": "Delete an appointment by a Doctor or Patient",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Apointment UUID",
+                        "name": "appointmentid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "All appointments deleted successfully"
+                    }
+                }
+            }
+        },
         "/signin/doctor": {
             "post": {
                 "tags": [
@@ -115,6 +228,46 @@
         }
     },
     "definitions": {
+        "models.AppointmentRequest": {
+            "type": "object",
+            "properties": {
+                "appointment_details": {
+                    "type": "string"
+                },
+                "appointment_time": {
+                    "type": "string"
+                },
+                "doctor_email": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AppointmentResponse": {
+            "type": "object",
+            "properties": {
+                "appointment_details": {
+                    "type": "string"
+                },
+                "appointment_time": {
+                    "type": "string"
+                },
+                "appointment_uuid": {
+                    "type": "string"
+                },
+                "doctor_email": {
+                    "type": "string"
+                },
+                "patient_email": {
+                    "type": "string"
+                },
+                "patient_name": {
+                    "type": "string"
+                },
+                "patient_uuid": {
+                    "type": "string"
+                }
+            }
+        },
         "models.LoginRequest": {
             "type": "object",
             "properties": {

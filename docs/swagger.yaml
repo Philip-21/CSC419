@@ -1,4 +1,30 @@
 definitions:
+  models.AppointmentRequest:
+    properties:
+      appointment_details:
+        type: string
+      appointment_time:
+        type: string
+      doctor_email:
+        type: string
+    type: object
+  models.AppointmentResponse:
+    properties:
+      appointment_details:
+        type: string
+      appointment_time:
+        type: string
+      appointment_uuid:
+        type: string
+      doctor_email:
+        type: string
+      patient_email:
+        type: string
+      patient_name:
+        type: string
+      patient_uuid:
+        type: string
+    type: object
   models.LoginRequest:
     properties:
       email:
@@ -53,6 +79,78 @@ info:
   contact: {}
   title: Group 14 Hospital Information System
 paths:
+  /appointment/{appointmentid}:
+    delete:
+      parameters:
+      - description: Apointment UUID
+        in: path
+        name: appointmentid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Appointment deleted successfully
+      summary: Delete an appointment by a Doctor or Patient
+      tags:
+      - Appointment Handlers
+    get:
+      parameters:
+      - description: Apointment UUID
+        in: path
+        name: appointmentid
+        required: true
+        type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.AppointmentResponse'
+      summary: Get an appointment, Doctor or Patient views an appointment
+      tags:
+      - Appointment Handlers
+  /appointment/{patientid}:
+    delete:
+      parameters:
+      - description: Apointment UUID
+        in: path
+        name: appointmentid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: All appointments deleted successfully
+      summary: Delete an appointment by a Doctor or Patient
+      tags:
+      - Appointment Handlers
+  /appointment/all:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AppointmentResponse'
+            type: array
+      summary: Doctor gets all his appointments
+      tags:
+      - Appointment Handlers
+  /appointment/book:
+    post:
+      parameters:
+      - description: payload
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.AppointmentRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.AppointmentResponse'
+      summary: Patient books an appointment
+      tags:
+      - Appointment Handlers
   /signin/doctor:
     post:
       parameters:
