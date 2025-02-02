@@ -77,3 +77,13 @@ func GetDoctor(db *gorm.DB, email string) (*models.Doctor, error) {
 	}
 	return doc, nil
 }
+
+func GetDoctorByUUID(db *gorm.DB, doctorUUID string) (*models.Doctor, error) {
+	var doc *models.Doctor
+
+	err := db.Where("doctor_uuid = ?", doctorUUID).First(&doc).Error
+	if err != nil {
+		return nil, fmt.Errorf("unable to get doctor details : %s ", doctorUUID)
+	}
+	return doc, nil
+}

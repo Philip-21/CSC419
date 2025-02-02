@@ -84,3 +84,12 @@ func DeleteAllAppointment(db *gorm.DB, pateintUUID string) error {
 	}
 	return nil
 }
+
+func GetAppointment(db *gorm.DB, appoinmentUUID string) (*models.Appointment, error) {
+	var appointment models.Appointment
+	err := db.Where("appointment_uuid = ?", appoinmentUUID).Error
+	if err != nil {
+		return nil, fmt.Errorf("unable to get appointment")
+	}
+	return &appointment, nil
+}

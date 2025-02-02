@@ -78,3 +78,13 @@ func GetPatient(db *gorm.DB, email string) (*models.Patient, error) {
 	}
 	return pateint, nil
 }
+
+func GetPatientByUUID(db *gorm.DB, patientUUID string) (*models.Patient, error) {
+	var patient *models.Patient
+
+	err := db.Where("patient_uuid = ?", patientUUID).First(&patient).Error
+	if err != nil {
+		return nil, fmt.Errorf("unable get patient : %s", err)
+	}
+	return patient, nil
+}
