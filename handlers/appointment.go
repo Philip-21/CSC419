@@ -10,6 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary      Patient books an appointment
+// @Param        user body models.AppointmentRequest true "payload"
+// @Success      201 {object} models.AppointmentResponse
+// @Router       /appointment/book [post]
+// @Tags         Appointment Handlers
 func (h *HandlerService) BookAppointment(ctx *gin.Context) {
 	email, _, err := middleware.ExtractEmailUserCreds(ctx)
 	if err != nil {
@@ -47,3 +52,108 @@ func (h *HandlerService) BookAppointment(ctx *gin.Context) {
 		}})
 }
 
+// @Summary      Doctor gets all his appointments
+// @Success      200 {object} []models.AppointmentResponse
+// @Router       /appointment/all [get]
+// @Tags         Appointment Handlers
+func (h *HandlerService) GetAllAppointmentByDoctor(ctx *gin.Context) {
+	email, _, err := middleware.ExtractEmailUserCreds(ctx)
+	if err != nil {
+		return
+	}
+	doctor, err := database.GetDoctor(h.DB, email)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	Appointments, err := database.GetAllAppointmentByDoctor(h.DB, doctor.DoctorUUID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	for _, appointment := range Appointments {
+		Patient, err := database.GetPatientByUUID(h.DB, appointment.PatientUUID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		Doctor, err := database.GetDoctorByUUID(h.DB, appointment.DoctorUUID)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		obtainedAppointment := models.AppointmentResponse{
+			DoctorEmail:        Doctor.Email,
+			AppointmentDetails: appointment.AppointmentDetails,
+			AppointmentTime:    appointment.AppointmentTime,
+			PatientName:        Patient.FirstName,
+			PatientEmail:       Patient.Email,
+			AppointmentUUID:    appointment.AppointmentUUID,
+		}
+		ctx.JSON(http.StatusOK, gin.H{"details": obtainedAppointment})
+	}
+}
+
+// @Summary      Get an appointment, Doctor or Patient views an appointment
+// @Success      201 {object} models.AppointmentResponse
+// @Router       /appointment/{appointmentid} [get]
+// @Param        appointmentid path string true "Apointment UUID"
+// @Tags         Appointment Handlers
+func (h *HandlerService) GetAppointment(ctx *gin.Context) {
+	appointmentUUID := ctx.Param("appointmentid")
+
+	appointment, err := database.GetAppointment(h.DB, appointmentUUID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	Patient, err := database.GetPatientByUUID(h.DB, appointment.PatientUUID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	Doctor, err := database.GetDoctorByUUID(h.DB, appointment.DoctorUUID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	obtainedAppointment := models.AppointmentResponse{
+		DoctorEmail:        Doctor.Email,
+		AppointmentDetails: appointment.AppointmentDetails,
+		AppointmentTime:    appointment.AppointmentTime,
+		PatientName:        Patient.FirstName,
+		PatientEmail:       Patient.Email,
+		AppointmentUUID:    appointment.AppointmentUUID,
+	}
+	ctx.JSON(http.StatusOK, gin.H{"details": obtainedAppointment})
+}
+
+// @Summary      Delete an appointment by a Doctor or Patient
+// @Success      200  "Appointment deleted successfully"
+// @Router       /delete/{appointmentid} [delete]
+// @Param        appointmentid path string true "Apointment UUID"
+// @Tags         Appointment Handlers
+func (h *HandlerService) DeleteApppointment(ctx *gin.Context) {
+	appointmentUUID := ctx.Param("appointmentid")
+	err := database.DeleteApppointment(h.DB, appointmentUUID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, "Appointment deleted successfully")
+}
+
+// @Summary      Delete an appointment by a Doctor or Patient
+// @Success      200 "All appointments deleted successfully"
+// @Router       /delete/{patientid} [delete]
+// @Param        appointmentid path string true "Apointment UUID"
+// @Tags         Appointment Handlers
+func (h *HandlerService) DeleteAllAppointment(ctx *gin.Context) {
+	patientID := ctx.Param("pateintid")
+	err := database.DeleteAllAppointment(h.DB, patientID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, "All appointments deleted successfully")
+}

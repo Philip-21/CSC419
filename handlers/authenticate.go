@@ -162,4 +162,3 @@ func (h *HandlerService) LoginPatient(ctx *gin.Context) {
 	})
 
 }
-
