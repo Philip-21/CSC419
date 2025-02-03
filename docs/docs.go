@@ -84,29 +84,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "tags": [
-                    "Appointment Handlers"
-                ],
-                "summary": "Delete an appointment by a Doctor or Patient",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Apointment UUID",
-                        "name": "appointmentid",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Appointment deleted successfully"
-                    }
-                }
             }
         },
-        "/appointment/{patientid}": {
+        "/delete-all/{patientid}": {
             "delete": {
                 "tags": [
                     "Appointment Handlers"
@@ -124,6 +104,28 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "All appointments deleted successfully"
+                    }
+                }
+            }
+        },
+        "/delete/{appointmentid}": {
+            "delete": {
+                "tags": [
+                    "Appointment Handlers"
+                ],
+                "summary": "Delete an appointment by a Doctor or Patient",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Apointment UUID",
+                        "name": "appointmentid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Appointment deleted successfully"
                     }
                 }
             }
@@ -285,9 +287,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
-                },
-                "token": {
                     "type": "string"
                 }
             }

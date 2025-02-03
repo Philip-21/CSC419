@@ -88,3 +88,36 @@ func GetPatientByUUID(db *gorm.DB, patientUUID string) (*models.Patient, error) 
 	}
 	return patient, nil
 }
+
+func GetPatientAppointments(db *gorm.DB, patientUUID string) ([]models.AppointmentResponse, error) {
+	var appointments []models.Appointment
+	var appointmentRsp []models.AppointmentResponse
+
+	err := db.Where("patient_uuid = ?", patientUUID).Find(&appointments).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("user not found")
+		}
+		return nil, fmt.Errorf("unable to handle transaction : %w", err)
+	}
+	for _, appointment := range appointments {
+		doctor, err := GetDoctorByUUID(db, appointment.DoctorUUID)
+		if err != nil {
+			return nil, err
+		}
+		patient, err := GetPatientByUUID(db, appointment.PatientUUID)
+		if err != nil {
+			return nil, err
+		}
+		appointmentRsp = append(appointmentRsp, models.AppointmentResponse{
+			DoctorEmail:        doctor.Email,
+			AppointmentDetails: appointment.AppointmentDetails,
+			AppointmentTime:    appointment.AppointmentTime,
+			AppointmentUUID:    appointment.AppointmentUUID,
+			PatientName:        patient.FirstName,
+			PatientEmail:       patient.Email,
+			PatientUUID:        patient.PatientUUID,
+		})
+	}
+	return appointmentRsp, nil
+}

@@ -54,7 +54,7 @@ func (h *HandlerService) BookAppointment(ctx *gin.Context) {
 
 // @Summary      Doctor gets all his appointments
 // @Success      200 {object} []models.AppointmentResponse
-// @Router       /appointment/all [get]
+// @Router       /appointment/doc-all [get]
 // @Tags         Appointment Handlers
 func (h *HandlerService) GetAllAppointmentByDoctor(ctx *gin.Context) {
 	email, _, err := middleware.ExtractEmailUserCreds(ctx)
@@ -143,9 +143,9 @@ func (h *HandlerService) DeleteApppointment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "Appointment deleted successfully")
 }
 
-// @Summary      Delete an appointment by a Doctor or Patient
+// @Summary      Delete all appointment by a Doctor or Patient
 // @Success      200 "All appointments deleted successfully"
-// @Router       /delete/{patientid} [delete]
+// @Router       /delete-all/{patientid} [delete]
 // @Param        appointmentid path string true "Apointment UUID"
 // @Tags         Appointment Handlers
 func (h *HandlerService) DeleteAllAppointment(ctx *gin.Context) {
@@ -156,4 +156,19 @@ func (h *HandlerService) DeleteAllAppointment(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, "All appointments deleted successfully")
+}
+
+// @Summary      Patient gets all his appointments
+// @Success      200 {object} []models.AppointmentResponse
+// @Router       /appointment/pat-all [get]
+// @Tags         Appointment Handlers
+func (h *HandlerService) PatientGetAllAppointment(ctx *gin.Context) {
+	patientID := ctx.Param("pateintid")
+
+	appointmentRsp, err := database.GetPatientAppointments(h.DB, patientID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, appointmentRsp)
 }

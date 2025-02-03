@@ -36,10 +36,11 @@ func Routes(ctrl *handlers.HandlerService) *gin.Engine {
 
 	router.Use(middleware.Auth())
 	router.POST("/appointment/book", ctrl.BookAppointment)
-	router.GET("/appointment/all", ctrl.GetAllAppointmentByDoctor)
+	router.GET("/appointment/doc-all", ctrl.GetAllAppointmentByDoctor)
+	router.GET("/appointment/pat-all", ctrl.PatientGetAllAppointment)
 	router.GET("/appointment/:appointmentid", ctrl.GetAppointment)
 	router.DELETE("/delete/:appointmentid", ctrl.DeleteApppointment)
-	router.DELETE("/delete/:patientid", ctrl.DeleteAllAppointment)
+	router.DELETE("/delete-all/:patientid", ctrl.DeleteAllAppointment)
 
 	return router
 }

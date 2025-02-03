@@ -34,7 +34,6 @@ type SignUpResponse struct {
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	Token    string `json:"token"`
 }
 
 type LoginResponse struct {
@@ -65,4 +64,10 @@ type AppointmentResponse struct {
 	PatientEmail       string `json:"patient_email"`
 	PatientUUID        string `json:"patient_uuid"`
 	AppointmentUUID    string `json:"appointment_uuid"`
+}
+
+type DoctorResp struct {
+	DoctorEmail string `json:"doctor_email"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
 }

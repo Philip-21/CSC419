@@ -31,8 +31,6 @@ definitions:
         type: string
       password:
         type: string
-      token:
-        type: string
     type: object
   models.LoginResponse:
     properties:
@@ -80,19 +78,6 @@ info:
   title: Group 14 Hospital Information System
 paths:
   /appointment/{appointmentid}:
-    delete:
-      parameters:
-      - description: Apointment UUID
-        in: path
-        name: appointmentid
-        required: true
-        type: string
-      responses:
-        "200":
-          description: Appointment deleted successfully
-      summary: Delete an appointment by a Doctor or Patient
-      tags:
-      - Appointment Handlers
     get:
       parameters:
       - description: Apointment UUID
@@ -106,20 +91,6 @@ paths:
           schema:
             $ref: '#/definitions/models.AppointmentResponse'
       summary: Get an appointment, Doctor or Patient views an appointment
-      tags:
-      - Appointment Handlers
-  /appointment/{patientid}:
-    delete:
-      parameters:
-      - description: Apointment UUID
-        in: path
-        name: appointmentid
-        required: true
-        type: string
-      responses:
-        "200":
-          description: All appointments deleted successfully
-      summary: Delete an appointment by a Doctor or Patient
       tags:
       - Appointment Handlers
   /appointment/all:
@@ -149,6 +120,34 @@ paths:
           schema:
             $ref: '#/definitions/models.AppointmentResponse'
       summary: Patient books an appointment
+      tags:
+      - Appointment Handlers
+  /delete-all/{patientid}:
+    delete:
+      parameters:
+      - description: Apointment UUID
+        in: path
+        name: appointmentid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: All appointments deleted successfully
+      summary: Delete an appointment by a Doctor or Patient
+      tags:
+      - Appointment Handlers
+  /delete/{appointmentid}:
+    delete:
+      parameters:
+      - description: Apointment UUID
+        in: path
+        name: appointmentid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Appointment deleted successfully
+      summary: Delete an appointment by a Doctor or Patient
       tags:
       - Appointment Handlers
   /signin/doctor:

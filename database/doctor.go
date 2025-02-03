@@ -87,3 +87,21 @@ func GetDoctorByUUID(db *gorm.DB, doctorUUID string) (*models.Doctor, error) {
 	}
 	return doc, nil
 }
+
+func GetAllDoctors(db *gorm.DB) ([]models.DoctorResp, error) {
+	var allDoc []models.DoctorResp
+	var doctors []models.Doctor
+
+	err := db.Find(&doctors).Error
+	if err != nil {
+		return nil, fmt.Errorf("unable to get doctors : %s", err)
+	}
+	for _, doctor := range doctors {
+		allDoc = append(allDoc, models.DoctorResp{
+			DoctorEmail: doctor.Email,
+			FirstName:   doctor.FirstName,
+			LastName:    doctor.LastName,
+		})
+	}
+	return allDoc, nil
+}
