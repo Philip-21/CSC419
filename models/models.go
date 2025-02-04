@@ -10,6 +10,7 @@ type Appointment struct {
 	PatientUUID        string    `gorm:"column:patient_uuid"`
 	DoctorUUID         string    `gorm:"column:doctor_uuid"`
 	CreatedAt          time.Time `gorm:"column:created_at"`
+	AppointmentDate    string    `gorm:"column:appointment_date"`
 	AppointmentTime    string    `gorm:"column:appointment_time"`
 	AppointmentDetails string    `gorm:"column:appointment_details"`
 	//UpdatedAt     time.Time `gorm:"column:updated_at"`
@@ -49,17 +50,20 @@ type AppointmentRequest struct {
 	DoctorEmail        string `json:"doctor_email"`
 	AppointmentDetails string `json:"appointment_details"`
 	AppointmentTime    string `json:"appointment_time"`
+	AppointmentDate    string `json:"appointment_date"`
 }
 
 type UpdateAppointmentRequest struct {
 	AppointmentDetails string `json:"appointment_details"`
 	AppointmentTime    string `json:"appointment_time"`
+	AppointmentDate    string `json:"appointment_date"`
 }
 
 type AppointmentResponse struct {
 	DoctorEmail        string `json:"doctor_email"`
 	AppointmentDetails string `json:"appointment_details"`
 	AppointmentTime    string `json:"appointment_time"`
+	AppointmentDate    string `json:"appointment_date"`
 	PatientName        string `json:"patient_name"`
 	PatientEmail       string `json:"patient_email"`
 	PatientUUID        string `json:"patient_uuid"`

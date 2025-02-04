@@ -15,25 +15,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/appointment/all": {
-            "get": {
-                "tags": [
-                    "Appointment Handlers"
-                ],
-                "summary": "Doctor gets all his appointments",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/models.AppointmentResponse"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/appointment/book": {
             "post": {
                 "tags": [
@@ -49,6 +30,14 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/models.AppointmentRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -56,6 +45,71 @@ const docTemplate = `{
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/models.AppointmentResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/appointment/doc-all": {
+            "get": {
+                "tags": [
+                    "Appointment Handlers"
+                ],
+                "summary": "Doctor gets all his appointments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AppointmentResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/appointment/pat-all/{patientid}": {
+            "get": {
+                "tags": [
+                    "Appointment Handlers"
+                ],
+                "summary": "Patient gets all his appointments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Patient UUID",
+                        "name": "patientid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AppointmentResponse"
+                            }
                         }
                     }
                 }
@@ -74,6 +128,14 @@ const docTemplate = `{
                         "name": "appointmentid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -91,13 +153,21 @@ const docTemplate = `{
                 "tags": [
                     "Appointment Handlers"
                 ],
-                "summary": "Delete an appointment by a Doctor or Patient",
+                "summary": "Delete all appointment by a Patient",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Apointment UUID",
-                        "name": "appointmentid",
+                        "description": "Patient UUID",
+                        "name": "patientid",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -121,11 +191,48 @@ const docTemplate = `{
                         "name": "appointmentid",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Appointment deleted successfully"
+                    }
+                }
+            }
+        },
+        "/doctors/all": {
+            "get": {
+                "tags": [
+                    "Appointment Handlers"
+                ],
+                "summary": "Patient gets list of doctors",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.DoctorResp"
+                            }
+                        }
                     }
                 }
             }
@@ -243,6 +350,9 @@ const docTemplate = `{
         "models.AppointmentRequest": {
             "type": "object",
             "properties": {
+                "appointment_date": {
+                    "type": "string"
+                },
                 "appointment_details": {
                     "type": "string"
                 },
@@ -257,6 +367,9 @@ const docTemplate = `{
         "models.AppointmentResponse": {
             "type": "object",
             "properties": {
+                "appointment_date": {
+                    "type": "string"
+                },
                 "appointment_details": {
                     "type": "string"
                 },
@@ -276,6 +389,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "patient_uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.DoctorResp": {
+            "type": "object",
+            "properties": {
+                "doctor_email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
                     "type": "string"
                 }
             }

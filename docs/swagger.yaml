@@ -1,6 +1,8 @@
 definitions:
   models.AppointmentRequest:
     properties:
+      appointment_date:
+        type: string
       appointment_details:
         type: string
       appointment_time:
@@ -10,6 +12,8 @@ definitions:
     type: object
   models.AppointmentResponse:
     properties:
+      appointment_date:
+        type: string
       appointment_details:
         type: string
       appointment_time:
@@ -23,6 +27,15 @@ definitions:
       patient_name:
         type: string
       patient_uuid:
+        type: string
+    type: object
+  models.DoctorResp:
+    properties:
+      doctor_email:
+        type: string
+      first_name:
+        type: string
+      last_name:
         type: string
     type: object
   models.LoginRequest:
@@ -85,24 +98,18 @@ paths:
         name: appointmentid
         required: true
         type: string
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       responses:
         "201":
           description: Created
           schema:
             $ref: '#/definitions/models.AppointmentResponse'
       summary: Get an appointment, Doctor or Patient views an appointment
-      tags:
-      - Appointment Handlers
-  /appointment/all:
-    get:
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/models.AppointmentResponse'
-            type: array
-      summary: Doctor gets all his appointments
       tags:
       - Appointment Handlers
   /appointment/book:
@@ -114,6 +121,12 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/models.AppointmentRequest'
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       responses:
         "201":
           description: Created
@@ -122,18 +135,67 @@ paths:
       summary: Patient books an appointment
       tags:
       - Appointment Handlers
+  /appointment/doc-all:
+    get:
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AppointmentResponse'
+            type: array
+      summary: Doctor gets all his appointments
+      tags:
+      - Appointment Handlers
+  /appointment/pat-all/{patientid}:
+    get:
+      parameters:
+      - description: Patient UUID
+        in: path
+        name: patientid
+        required: true
+        type: string
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AppointmentResponse'
+            type: array
+      summary: Patient gets all his appointments
+      tags:
+      - Appointment Handlers
   /delete-all/{patientid}:
     delete:
       parameters:
-      - description: Apointment UUID
+      - description: Patient UUID
         in: path
-        name: appointmentid
+        name: patientid
+        required: true
+        type: string
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
         required: true
         type: string
       responses:
         "200":
           description: All appointments deleted successfully
-      summary: Delete an appointment by a Doctor or Patient
+      summary: Delete all appointment by a Patient
       tags:
       - Appointment Handlers
   /delete/{appointmentid}:
@@ -144,10 +206,35 @@ paths:
         name: appointmentid
         required: true
         type: string
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
       responses:
         "200":
           description: Appointment deleted successfully
       summary: Delete an appointment by a Doctor or Patient
+      tags:
+      - Appointment Handlers
+  /doctors/all:
+    get:
+      parameters:
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.DoctorResp'
+            type: array
+      summary: Patient gets list of doctors
       tags:
       - Appointment Handlers
   /signin/doctor:
