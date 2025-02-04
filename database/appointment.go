@@ -27,22 +27,24 @@ func GetAllAppointmentByDoctor(db *gorm.DB, doctorUUID string) ([]models.Appoint
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
-	} else {
-		return nil, fmt.Errorf("query DB : %s", err)
+		return nil, fmt.Errorf("query DB: %s", err)
 	}
 	return appointments, nil
 }
 
-func BookAppointment(db *gorm.DB, doctorID, patientID int, doctorUUID string, patientUUID string) (*models.Appointment, error) {
+func BookAppointment(db *gorm.DB, doctorID, patientID int, doctorUUID string, patientUUID string, appoint *models.AppointmentRequest) (*models.Appointment, error) {
 	appointment := &models.Appointment{
-		PatientID:       patientID,
-		DoctorID:        doctorID,
-		PatientUUID:     patientUUID,
-		DoctorUUID:      doctorUUID,
-		AppointmentUUID: uuid.NewString(),
-		CreatedAt:       time.Now(),
+		PatientID:          patientID,
+		DoctorID:           doctorID,
+		PatientUUID:        patientUUID,
+		DoctorUUID:         doctorUUID,
+		AppointmentDate:    appoint.AppointmentDate,
+		AppointmentTime:    appoint.AppointmentTime,
+		AppointmentDetails: appoint.AppointmentDetails,
+		AppointmentUUID:    uuid.NewString(),
+		CreatedAt:          time.Now(),
 	}
-	err := db.Create(&appointment).Error
+	err := db.Create(appointment).Error
 	if err != nil {
 		return nil, fmt.Errorf("unable to create user")
 	}
@@ -87,7 +89,7 @@ func DeleteAllAppointment(db *gorm.DB, pateintUUID string) error {
 
 func GetAppointment(db *gorm.DB, appoinmentUUID string) (*models.Appointment, error) {
 	var appointment models.Appointment
-	err := db.Where("appointment_uuid = ?", appoinmentUUID).Error
+	err := db.Where("appointment_uuid = ?", appoinmentUUID).First(&appointment).Error
 	if err != nil {
 		return nil, fmt.Errorf("unable to get appointment")
 	}

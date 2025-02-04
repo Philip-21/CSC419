@@ -71,7 +71,7 @@ func CheckDoctorEmailExist(db *gorm.DB, email string) error {
 func GetDoctor(db *gorm.DB, email string) (*models.Doctor, error) {
 	var doc *models.Doctor
 
-	err := db.Where("email = ?", email).Error
+	err := db.Where("email = ?", email).First(&doc).Error
 	if err != nil {
 		return nil, fmt.Errorf("unable to get doctor by mail %s", err)
 	}

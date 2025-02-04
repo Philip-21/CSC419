@@ -72,7 +72,7 @@ func CheckPatientEmailExist(db *gorm.DB, email string) error {
 func GetPatient(db *gorm.DB, email string) (*models.Patient, error) {
 	var pateint *models.Patient
 
-	err := db.Where("email = ?", email).Error
+	err := db.Where("email = ?", email).First(&pateint).Error
 	if err != nil {
 		return nil, fmt.Errorf("unable to get patient by mail %s", err)
 	}
@@ -96,7 +96,7 @@ func GetPatientAppointments(db *gorm.DB, patientUUID string) ([]models.Appointme
 	err := db.Where("patient_uuid = ?", patientUUID).Find(&appointments).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errors.New("user not found")
+			return nil, nil
 		}
 		return nil, fmt.Errorf("unable to handle transaction : %w", err)
 	}
@@ -113,6 +113,7 @@ func GetPatientAppointments(db *gorm.DB, patientUUID string) ([]models.Appointme
 			DoctorEmail:        doctor.Email,
 			AppointmentDetails: appointment.AppointmentDetails,
 			AppointmentTime:    appointment.AppointmentTime,
+			AppointmentDate:    appointment.AppointmentDate,
 			AppointmentUUID:    appointment.AppointmentUUID,
 			PatientName:        patient.FirstName,
 			PatientEmail:       patient.Email,
