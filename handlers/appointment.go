@@ -15,12 +15,13 @@ import (
 // @Success      201 {object} models.AppointmentResponse
 // @Router       /appointment/book [post]
 // @Tags         Appointment Handlers
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 func (h *HandlerService) BookAppointment(ctx *gin.Context) {
 	email, _, err := middleware.ExtractEmailUserCreds(ctx)
 	if err != nil {
 		return
 	}
-	var req *models.AppointmentRequest
+	var req models.AppointmentRequest
 	if err := ctx.BindJSON(&req); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("unable to bind JSON :%s", err)})
 		return
@@ -35,7 +36,7 @@ func (h *HandlerService) BookAppointment(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	Appointment, err := database.BookAppointment(h.DB, Doctor.DoctorID, Patient.PatientID, Doctor.DoctorUUID, Patient.PatientUUID)
+	Appointment, err := database.BookAppointment(h.DB, Doctor.DoctorID, Patient.PatientID, Doctor.DoctorUUID, Patient.PatientUUID, &req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -48,6 +49,7 @@ func (h *HandlerService) BookAppointment(ctx *gin.Context) {
 			PatientUUID:        Patient.PatientUUID,
 			AppointmentDetails: Appointment.AppointmentDetails,
 			AppointmentTime:    Appointment.AppointmentTime,
+			AppointmentDate:    Appointment.AppointmentDate,
 			AppointmentUUID:    Appointment.AppointmentUUID,
 		}})
 }
@@ -56,6 +58,7 @@ func (h *HandlerService) BookAppointment(ctx *gin.Context) {
 // @Success      200 {object} []models.AppointmentResponse
 // @Router       /appointment/doc-all [get]
 // @Tags         Appointment Handlers
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 func (h *HandlerService) GetAllAppointmentByDoctor(ctx *gin.Context) {
 	email, _, err := middleware.ExtractEmailUserCreds(ctx)
 	if err != nil {
@@ -66,32 +69,36 @@ func (h *HandlerService) GetAllAppointmentByDoctor(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	Appointments, err := database.GetAllAppointmentByDoctor(h.DB, doctor.DoctorUUID)
+	appointments, err := database.GetAllAppointmentByDoctor(h.DB, doctor.DoctorUUID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	for _, appointment := range Appointments {
-		Patient, err := database.GetPatientByUUID(h.DB, appointment.PatientUUID)
+	var responseAppointments []models.AppointmentResponse
+	for _, appointment := range appointments {
+		patient, err := database.GetPatientByUUID(h.DB, appointment.PatientUUID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		Doctor, err := database.GetDoctorByUUID(h.DB, appointment.DoctorUUID)
+
+		doctor, err := database.GetDoctorByUUID(h.DB, appointment.DoctorUUID)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		obtainedAppointment := models.AppointmentResponse{
-			DoctorEmail:        Doctor.Email,
+
+		responseAppointments = append(responseAppointments, models.AppointmentResponse{
+			DoctorEmail:        doctor.Email,
 			AppointmentDetails: appointment.AppointmentDetails,
 			AppointmentTime:    appointment.AppointmentTime,
-			PatientName:        Patient.FirstName,
-			PatientEmail:       Patient.Email,
+			PatientName:        patient.FirstName,
+			PatientEmail:       patient.Email,
 			AppointmentUUID:    appointment.AppointmentUUID,
-		}
-		ctx.JSON(http.StatusOK, gin.H{"details": obtainedAppointment})
+		})
 	}
+
+	ctx.JSON(http.StatusOK, gin.H{"details": responseAppointments})
 }
 
 // @Summary      Get an appointment, Doctor or Patient views an appointment
@@ -99,8 +106,13 @@ func (h *HandlerService) GetAllAppointmentByDoctor(ctx *gin.Context) {
 // @Router       /appointment/{appointmentid} [get]
 // @Param        appointmentid path string true "Apointment UUID"
 // @Tags         Appointment Handlers
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 func (h *HandlerService) GetAppointment(ctx *gin.Context) {
 	appointmentUUID := ctx.Param("appointmentid")
+	_, _, err := middleware.ExtractEmailUserCreds(ctx)
+	if err != nil {
+		return
+	}
 
 	appointment, err := database.GetAppointment(h.DB, appointmentUUID)
 	if err != nil {
@@ -123,6 +135,7 @@ func (h *HandlerService) GetAppointment(ctx *gin.Context) {
 		AppointmentTime:    appointment.AppointmentTime,
 		PatientName:        Patient.FirstName,
 		PatientEmail:       Patient.Email,
+		PatientUUID:        Patient.PatientUUID,
 		AppointmentUUID:    appointment.AppointmentUUID,
 	}
 	ctx.JSON(http.StatusOK, gin.H{"details": obtainedAppointment})
@@ -133,9 +146,14 @@ func (h *HandlerService) GetAppointment(ctx *gin.Context) {
 // @Router       /delete/{appointmentid} [delete]
 // @Param        appointmentid path string true "Apointment UUID"
 // @Tags         Appointment Handlers
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 func (h *HandlerService) DeleteApppointment(ctx *gin.Context) {
 	appointmentUUID := ctx.Param("appointmentid")
-	err := database.DeleteApppointment(h.DB, appointmentUUID)
+	_, _, err := middleware.ExtractEmailUserCreds(ctx)
+	if err != nil {
+		return
+	}
+	err = database.DeleteApppointment(h.DB, appointmentUUID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -143,14 +161,19 @@ func (h *HandlerService) DeleteApppointment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "Appointment deleted successfully")
 }
 
-// @Summary      Delete all appointment by a Doctor or Patient
+// @Summary      Delete all appointment by a Patient
 // @Success      200 "All appointments deleted successfully"
 // @Router       /delete-all/{patientid} [delete]
-// @Param        appointmentid path string true "Apointment UUID"
+// @Param        patientid path string true "Patient UUID"
 // @Tags         Appointment Handlers
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 func (h *HandlerService) DeleteAllAppointment(ctx *gin.Context) {
-	patientID := ctx.Param("pateintid")
-	err := database.DeleteAllAppointment(h.DB, patientID)
+	patientID := ctx.Param("patientid")
+	_, _, err := middleware.ExtractEmailUserCreds(ctx)
+	if err != nil {
+		return
+	}
+	err = database.DeleteAllAppointment(h.DB, patientID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -160,15 +183,38 @@ func (h *HandlerService) DeleteAllAppointment(ctx *gin.Context) {
 
 // @Summary      Patient gets all his appointments
 // @Success      200 {object} []models.AppointmentResponse
-// @Router       /appointment/pat-all [get]
+// @Router       /appointment/pat-all/{patientid} [get]
+// @Param        patientid path string true "Patient UUID"
 // @Tags         Appointment Handlers
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
 func (h *HandlerService) PatientGetAllAppointment(ctx *gin.Context) {
-	patientID := ctx.Param("pateintid")
-
+	patientID := ctx.Param("patientid")
+	_, _, err := middleware.ExtractEmailUserCreds(ctx)
+	if err != nil {
+		return
+	}
 	appointmentRsp, err := database.GetPatientAppointments(h.DB, patientID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, appointmentRsp)
+}
+
+// @Summary      Patient gets list of doctors
+// @Success      200 {object} []models.DoctorResp
+// @Router       /doctors/all [get]
+// @Tags         Appointment Handlers
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+func (h *HandlerService) GetAllDoctors(ctx *gin.Context) {
+	_, _, err := middleware.ExtractEmailUserCreds(ctx)
+	if err != nil {
+		return
+	}
+	Doctors, err := database.GetAllDoctors(h.DB)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, Doctors)
 }
