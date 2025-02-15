@@ -218,3 +218,56 @@ func (h *HandlerService) GetAllDoctors(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, Doctors)
 }
+
+// @Summary      Get a particular doctor details
+// @Success      200 {object} models.DoctorResp
+// @Router       /doctors/{doctorid} [get]
+// @Param        doctorid path string true "Doctor UUID"
+// @Tags         Appointment Handlers
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+func (h *HandlerService) GetDoctorByID(ctx *gin.Context) {
+	doctorID := ctx.Param("doctorid")
+	_, _, err := middleware.ExtractEmailUserCreds(ctx)
+	if err != nil {
+		return
+	}
+	doctor, err := database.GetDoctorByUUID(h.DB, doctorID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	doctorRsp := models.DoctorResp{
+		DoctorEmail: doctor.Email,
+		FirstName:   doctor.FirstName,
+		LastName:    doctor.LastName,
+		DoctorUUID:  doctor.DoctorUUID,
+	}
+	ctx.JSON(http.StatusOK, doctorRsp)
+}
+
+// @Summary      Update an appointment
+// @Success      200 {object} models.Appointment
+// @Router       /appointment/{appointmentid} [put]
+// @Param        appointmentid path string true "Apointment UUID"
+// @Tags         Appointment Handlers
+// @Param Authorization header string true "Insert your access token" default(Bearer <Add access token here>)
+func (h *HandlerService) UpdateAppointment(ctx *gin.Context) {
+	appointmentUUID := ctx.Param("appointmentid")
+	_, _, err := middleware.ExtractEmailUserCreds(ctx)
+	if err != nil {
+		return
+	}
+
+	var req models.AppointmentRequest
+	if err := ctx.BindJSON(&req); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Errorf("unable to bind JSON :%s", err)})
+		return
+	}
+	appointment, err := database.UpdateAppointment(h.DB, appointmentUUID, req.AppointmentTime, req.AppointmentDetails)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"message": "Appointment updated successfully", "details": appointment})
+
+}

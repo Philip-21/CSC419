@@ -51,9 +51,9 @@ func BookAppointment(db *gorm.DB, doctorID, patientID int, doctorUUID string, pa
 	return appointment, nil
 }
 
-func UpdateAppointment(db *gorm.DB, patientUUID, doctorUUID string, appointmentTime, appointmentDetails string) (*models.Appointment, error) {
+func UpdateAppointment(db *gorm.DB, appointmentUUID string, appointmentTime, appointmentDetails string) (*models.Appointment, error) {
 	var appointment *models.Appointment
-	err := db.Where("patient_uuid = ? AND doctor_uuid = ?", patientUUID, doctorUUID).Error
+	err := db.Where("appointment_uuid = ?", appointmentUUID).First(&appointment).Error
 	if err != nil {
 		return nil, fmt.Errorf("unable to get appointment %s", err)
 	}

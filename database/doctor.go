@@ -101,6 +101,7 @@ func GetAllDoctors(db *gorm.DB) ([]models.DoctorResp, error) {
 			DoctorEmail: doctor.Email,
 			FirstName:   doctor.FirstName,
 			LastName:    doctor.LastName,
+			DoctorUUID:  doctor.DoctorUUID,
 		})
 	}
 	return allDoc, nil

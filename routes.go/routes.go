@@ -41,7 +41,8 @@ func Routes(ctrl *handlers.HandlerService) *gin.Engine {
 	router.GET("/appointment/:appointmentid", ctrl.GetAppointment)
 	router.DELETE("/delete/:appointmentid", ctrl.DeleteApppointment)
 	router.DELETE("/delete-all/:patientid", ctrl.DeleteAllAppointment)
+	router.PUT("/appointment/:appointmentid", ctrl.UpdateAppointment)
 	router.GET("/doctors/all", ctrl.GetAllDoctors)
-
+	router.GET("/doctors/:doctorid", ctrl.GetDoctorByID)
 	return router
 }

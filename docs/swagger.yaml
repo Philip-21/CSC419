@@ -1,4 +1,27 @@
 definitions:
+  models.Appointment:
+    properties:
+      appointmentDate:
+        type: string
+      appointmentDetails:
+        type: string
+      appointmentID:
+        type: integer
+      appointmentTime:
+        type: string
+      appointmentUUID:
+        type: string
+      createdAt:
+        type: string
+      doctorID:
+        type: integer
+      doctorUUID:
+        type: string
+      patientID:
+        type: integer
+      patientUUID:
+        type: string
+    type: object
   models.AppointmentRequest:
     properties:
       appointment_date:
@@ -32,6 +55,8 @@ definitions:
   models.DoctorResp:
     properties:
       doctor_email:
+        type: string
+      doctor_uuid:
         type: string
       first_name:
         type: string
@@ -110,6 +135,27 @@ paths:
           schema:
             $ref: '#/definitions/models.AppointmentResponse'
       summary: Get an appointment, Doctor or Patient views an appointment
+      tags:
+      - Appointment Handlers
+    put:
+      parameters:
+      - description: Apointment UUID
+        in: path
+        name: appointmentid
+        required: true
+        type: string
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Appointment'
+      summary: Update an appointment
       tags:
       - Appointment Handlers
   /appointment/book:
@@ -216,6 +262,28 @@ paths:
         "200":
           description: Appointment deleted successfully
       summary: Delete an appointment by a Doctor or Patient
+      tags:
+      - Appointment Handlers
+  /doctors/{doctorid}:
+    get:
+      parameters:
+      - description: Doctor UUID
+        in: path
+        name: doctorid
+        required: true
+        type: string
+      - default: Bearer <Add access token here>
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.DoctorResp'
+      summary: Get a particular doctor details
       tags:
       - Appointment Handlers
   /doctors/all:

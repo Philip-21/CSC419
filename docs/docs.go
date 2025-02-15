@@ -146,6 +146,37 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "tags": [
+                    "Appointment Handlers"
+                ],
+                "summary": "Update an appointment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Apointment UUID",
+                        "name": "appointmentid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Appointment"
+                        }
+                    }
+                }
             }
         },
         "/delete-all/{patientid}": {
@@ -232,6 +263,39 @@ const docTemplate = `{
                             "items": {
                                 "$ref": "#/definitions/models.DoctorResp"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/doctors/{doctorid}": {
+            "get": {
+                "tags": [
+                    "Appointment Handlers"
+                ],
+                "summary": "Get a particular doctor details",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Doctor UUID",
+                        "name": "doctorid",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "Bearer \u003cAdd access token here\u003e",
+                        "description": "Insert your access token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.DoctorResp"
                         }
                     }
                 }
@@ -347,6 +411,41 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.Appointment": {
+            "type": "object",
+            "properties": {
+                "appointmentDate": {
+                    "type": "string"
+                },
+                "appointmentDetails": {
+                    "type": "string"
+                },
+                "appointmentID": {
+                    "type": "integer"
+                },
+                "appointmentTime": {
+                    "type": "string"
+                },
+                "appointmentUUID": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "doctorID": {
+                    "type": "integer"
+                },
+                "doctorUUID": {
+                    "type": "string"
+                },
+                "patientID": {
+                    "type": "integer"
+                },
+                "patientUUID": {
+                    "type": "string"
+                }
+            }
+        },
         "models.AppointmentRequest": {
             "type": "object",
             "properties": {
@@ -397,6 +496,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "doctor_email": {
+                    "type": "string"
+                },
+                "doctor_uuid": {
                     "type": "string"
                 },
                 "first_name": {

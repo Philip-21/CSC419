@@ -74,4 +74,5 @@ type DoctorResp struct {
 	DoctorEmail string `json:"doctor_email"`
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
+	DoctorUUID  string `json:"doctor_uuid"`
 }
