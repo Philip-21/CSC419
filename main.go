@@ -11,8 +11,8 @@ import (
 // @title Group 14 Hospital Information System
 func main() {
 	serverPort := ":8080"
-	dsn := "postgresql://postgres:philippians@localhost:5432/postgres"
 
+	dsn := "postgresql://philip:M5F9ZJKIAna5vv3LPwxwaPCuzk7wV7W6@dpg-cv58pofnoe9s73ef3ja0-a.oregon-postgres.render.com/csc419_class"
 	db, err := database.ConnectToDB(dsn)
 	if err != nil {
 		return

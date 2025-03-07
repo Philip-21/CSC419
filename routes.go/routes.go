@@ -28,7 +28,7 @@ func Routes(ctrl *handlers.HandlerService) *gin.Engine {
 		MaxAge:           24 * time.Hour,
 	}))
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
+	router.GET("/health", ctrl.HealthCheck)
 	router.POST("/signup/patient", ctrl.RegisterPatient)
 	router.POST("/signup/doctor", ctrl.RegisterDoctor)
 	router.POST("/signin/doctor", ctrl.LoginDoctor)
