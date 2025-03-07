@@ -19,6 +19,9 @@ func NewHandlerService(db *gorm.DB) *HandlerService {
 		DB: db,
 	}
 }
+func (h *HandlerService) HealthCheck(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{"message": "Hospital Management System is running"})
+}
 
 // @Summary      Register as a Patient
 // @Param        user body models.SignUpRequest true "payload"
