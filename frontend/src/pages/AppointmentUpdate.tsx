@@ -77,8 +77,8 @@ const AppointmentUpdate = () => {
         <div className="mb-4">
           <label className="block mb-1">Appointment Time:</label>
           <input
-            type="text"
-            name="appointment-time"
+            type="datetime-local"
+            name="appointment_time"
             value={form.appointment_time}
             onChange={handleChange}
             className="w-full p-2 border rounded"
