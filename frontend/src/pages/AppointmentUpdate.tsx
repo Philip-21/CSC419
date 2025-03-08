@@ -56,7 +56,7 @@ const AppointmentUpdate = () => {
           <label className="block mb-1">Doctor Email:</label>
           <input
             type="email"
-            name="doctorEmail"
+            name="doctor_email"
             value={form.doctor_email}
             onChange={handleChange}
             className="w-full p-2 border rounded"
@@ -67,7 +67,7 @@ const AppointmentUpdate = () => {
           <label className="block mb-1">Appointment Details:</label>
           <input
             type="text"
-            name="appointmentDetails"
+            name="appointment_details"
             value={form.appointment_details}
             onChange={handleChange}
             className="w-full p-2 border rounded"
@@ -78,7 +78,7 @@ const AppointmentUpdate = () => {
           <label className="block mb-1">Appointment Time:</label>
           <input
             type="text"
-            name="appointmentTime"
+            name="appointment-time"
             value={form.appointment_time}
             onChange={handleChange}
             className="w-full p-2 border rounded"

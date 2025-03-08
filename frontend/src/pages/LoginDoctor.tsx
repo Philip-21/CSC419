@@ -20,6 +20,7 @@ const LoginDoctor: React.FC = () => {
       );
       localStorage.setItem('token', res.data.details.token);
       localStorage.setItem('userUUID', res.data.details.user_uuid);
+      localStorage.setItem('role', res.data.details.role);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed');

@@ -15,12 +15,6 @@ const Navbar: React.FC = () => {
             Dashboard
           </Link>
           <Link
-            to="/appointment/book"
-            className="text-gray-700 hover:text-blue-500"
-          >
-            Book Appointment
-          </Link>
-          <Link
             to="/appointments"
             className="text-gray-700 hover:text-blue-500"
           >

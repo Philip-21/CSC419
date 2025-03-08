@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
+  const role = localStorage.getItem('role');
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -16,17 +18,19 @@ const Dashboard: React.FC = () => {
 
       {/* Action Cards */}
       <div className="container mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Link
-          to="/appointment/book"
-          className="bg-white rounded-lg shadow p-6 hover:shadow-xl transition"
-        >
-          <h2 className="text-xl font-bold text-blue-500 mb-2">
-            Book Appointment
-          </h2>
-          <p className="text-gray-600">
-            Schedule a new appointment with your preferred doctor.
-          </p>
-        </Link>
+        {role !== 'doctor' && (
+          <Link
+            to="/appointment/book"
+            className="bg-white rounded-lg shadow p-6 hover:shadow-xl transition"
+          >
+            <h2 className="text-xl font-bold text-blue-500 mb-2">
+              Book Appointment
+            </h2>
+            <p className="text-gray-600">
+              Schedule a new appointment with your preferred doctor.
+            </p>
+          </Link>
+        )}
         <Link
           to="/appointments"
           className="bg-white rounded-lg shadow p-6 hover:shadow-xl transition"

@@ -3,6 +3,12 @@ import API from '../api';
 import { AppointmentResponse } from '../types';
 import { useNavigate } from 'react-router-dom';
 
+const formatDateTime = (isoString: string) => {
+  const date = new Date(isoString);
+  // Adjust formatting as needed; this will use the user's locale.
+  return date.toLocaleString();
+};
+
 const AppointmentList: React.FC = () => {
   const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
   const [error, setError] = useState('');
@@ -11,10 +17,9 @@ const AppointmentList: React.FC = () => {
 
   useEffect(() => {
     // Assuming the logged-in user is a patient
-    console.log(userUUID);
     if (userUUID) {
       API.get(`/appointment/pat-all/${userUUID}`)
-        .then((res) => setAppointments(res.data))
+        .then((res) => setAppointments(res.data || []))
         .catch((err) =>
           setError(err.response?.data?.error || 'Failed to fetch appointments')
         );
@@ -54,7 +59,7 @@ const AppointmentList: React.FC = () => {
                   <strong>Doctor:</strong> {app.doctor_email}
                 </p>
                 <p>
-                  <strong>Time:</strong> {app.appointment_time}
+                  <strong>Time:</strong> {formatDateTime(app.appointment_time)}
                 </p>
                 <p>
                   <strong>Details:</strong> {app.appointment_details}

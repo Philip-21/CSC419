@@ -9,7 +9,7 @@ const DoctorList: React.FC = () => {
 
   useEffect(() => {
     API.get('/doctors/all')
-      .then((res) => setDoctors(res.data))
+      .then((res) => setDoctors(res.data || []))
       .catch((err) =>
         setError(err.response?.data?.error || 'Failed to fetch doctors')
       );
