@@ -5,8 +5,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - '8080:8080'
+#    ports:
+#      - '8080:8080'
+    network_mode: "host" #The container can access all local and public network resources just like your host machine can
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:8080/health']
@@ -14,6 +15,8 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   frontend:
     image: node:20
