@@ -6,13 +6,21 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - '8080:8080'
     restart: unless-stopped
- 
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/health"]
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:8080/health']
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
 
+  frontend:
+    image: node:20
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "rm -rf package-lock.json node_modules && yarn install --immutable && yarn dev --host"
+    ports:
+      - '5173:5173'
+    restart: unless-stopped
