@@ -11,20 +11,28 @@ const formatDateTime = (isoString: string) => {
 
 const AppointmentList: React.FC = () => {
   const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const userUUID = localStorage.getItem('userUUID');
+  const role = localStorage.getItem('role');
 
   useEffect(() => {
     // Assuming the logged-in user is a patient
     if (userUUID) {
-      API.get(`/appointment/pat-all/${userUUID}`)
-        .then((res) => setAppointments(res.data || []))
+      const patientRoute = `/appointment/pat-all/${userUUID}`;
+      const doctorRoute = `/appointment/doc-all`;
+      const isPatient = role === 'patient';
+      API.get(isPatient ? patientRoute : doctorRoute)
+        .then((res) => {
+          setAppointments((isPatient ? res.data : res.data.details) || []);
+        })
         .catch((err) =>
           setError(err.response?.data?.error || 'Failed to fetch appointments')
         );
     }
-  }, [userUUID]);
+    setLoading(false);
+  }, [userUUID, role]);
 
   const handleDelete = async (appointmentUUID: string) => {
     try {
@@ -45,9 +53,11 @@ const AppointmentList: React.FC = () => {
     <div className="max-w-3xl mx-auto mt-10">
       <h2 className="text-2xl mb-4">Your Appointments</h2>
       {error && <p className="text-red-500">{error}</p>}
-      {appointments.length === 0 ? (
+      {loading && <p>Loading...</p>}
+      {!loading && !error && appointments.length === 0 && (
         <p>No appointments found.</p>
-      ) : (
+      )}
+      {!loading && !error && appointments.length > 0 && (
         <ul className="divide-y">
           {appointments.map((app) => (
             <li
