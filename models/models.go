@@ -64,6 +64,7 @@ type AppointmentResponse struct {
 	AppointmentDetails string `json:"appointment_details"`
 	AppointmentTime    string `json:"appointment_time"`
 	AppointmentDate    string `json:"appointment_date"`
+	DoctorName         string `json:"doctor_name"`
 	PatientName        string `json:"patient_name"`
 	PatientEmail       string `json:"patient_email"`
 	PatientUUID        string `json:"patient_uuid"`
