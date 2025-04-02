@@ -18,9 +18,12 @@ const LoginPatient: React.FC = () => {
         '/signin/patient',
         form
       );
+      console.log(res, 'res'); 
       localStorage.setItem('token', res.data.details.token);
       localStorage.setItem('userUUID', res.data.details.user_uuid);
       localStorage.setItem('role', res.data.details.role);
+      localStorage.setItem("first_name", res.data.details.first_name);
+      localStorage.setItem("last_name", res.data.details.last_name);
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed');

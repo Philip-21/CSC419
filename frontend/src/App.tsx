@@ -12,16 +12,19 @@ import AppointmentUpdate from './pages/AppointmentUpdate';
 import DoctorList from './pages/DoctorList';
 import DoctorDetail from './pages/DoctorDetail';
 import ProtectedRoute from './components/ProtectedRoute';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App: React.FC = () => {
   return (
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/signup" element={<SignupPatient />} />
+        <Route path="/signup/patient" element={<SignupPatient />} />
         <Route path="/signup/doctor" element={<SignupDoctor />} />
         <Route path="/" element={<LoginPatient />} />
         <Route path="/login/doctor" element={<LoginDoctor />} />
+        <Route path="/login/patient" element={<LoginPatient />} />
         <Route
           path="/dashboard"
           element={
@@ -71,6 +74,7 @@ const App: React.FC = () => {
           }
         />
       </Routes>
+      <ToastContainer position="top-right" autoClose={2000} />
     </Router>
   );
 };

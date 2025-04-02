@@ -5,9 +5,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-#    ports:
-#      - '8080:8080'
-    network_mode: "host" #The container can access all local and public network resources just like your host machine can
+    ports:
+      - '8080:8080'
+    # network_mode: "host" #The container can access all local and public network resources just like your host machine can
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:8080/health']
@@ -23,7 +23,8 @@ services:
     working_dir: /app
     volumes:
       - ./frontend:/app
-    command: sh -c "rm -rf package-lock.json node_modules && yarn install --immutable && yarn dev --host"
+    command: sh -c "rm -rf package-lock.json node_modules && yarn install --immutable && yarn dev --host 0.0.0.0"
+    # command: sh -c "rm -rf package-lock.json node_modules && yarn install --immutable && yarn dev --host"
     ports:
       - '5173:5173'
     restart: unless-stopped
