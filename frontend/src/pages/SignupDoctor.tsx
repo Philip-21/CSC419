@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import API from '../api';
 import { SignUpRequest, SignUpResponse } from '../types';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Button } from '../components/ui/button';
+import { AuthLayout } from '../components/AuthLayout';
+import { Eye, EyeOff } from 'lucide-react';
 
 const SignupDoctor: React.FC = () => {
   const [form, setForm] = useState<SignUpRequest>({
@@ -11,6 +16,7 @@ const SignupDoctor: React.FC = () => {
     password: '',
   });
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -33,72 +39,99 @@ const SignupDoctor: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-        <h2 className="text-3xl font-bold text-center text-blue-500 mb-6">
-          Sign Up as a Doctor
-        </h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-5">
-            <label className="block text-gray-700 mb-2">First Name</label>
-            <input
-              type="text"
-              name="first_name"
-              value={form.first_name}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+    <AuthLayout
+      title="Doctor Registration"
+      description="Create a new doctor account to manage your patients and appointmentsm"
+    >
+      <div className="w-full">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label className="block text-gray-700 mb-2">First Name</Label>
+              <Input
+                type="text"
+                name="first_name"
+                value={form.first_name}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="block text-gray-700 mb-2">Last Name</Label>
+              <Input
+                type="text"
+                name="last_name"
+                value={form.last_name}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
-          <div className="mb-5">
-            <label className="block text-gray-700 mb-2">Last Name</label>
-            <input
-              type="text"
-              name="last_name"
-              value={form.last_name}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div className="mb-5">
-            <label className="block text-gray-700 mb-2">Email</label>
-            <input
+          <div className="space-y-2">
+            <Label className="block text-gray-700 mb-2">Email</Label>
+            <Input
               type="email"
               name="email"
               value={form.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
-          <div className="mb-6">
-            <label className="block text-gray-700 mb-2">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              <Link to="#" className="text-xs text-teal-600 hover:underline">
+                Forgot password?
+              </Link>
+            </div>
+            <div className="relative">
+              <Input
+                id="password"
+                value={form.password}
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                onChange={handleChange}
+                required
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+                <span className="sr-only">
+                  {showPassword ? 'Hide password' : 'Show password'}
+                </span>
+              </Button>
+            </div>
           </div>
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
-          >
+          <Button type="submit" className="w-full">
             Sign Up
-          </button>
+          </Button>
         </form>
-        <p className="mt-4 text-center text-gray-600">
-          Already have an account?{' '}
-          <a href="/login/doctor" className="text-blue-500 hover:underline">
-            Login here
-          </a>
-        </p>
+        <div className="mt-4 space-y-1">
+          <div className="text-center text-sm">
+            Already have an account?{' '}
+            <Link to="/" className="text-teal-600 hover:underline">
+              Sign in
+            </Link>
+          </div>
+          <div className="text-center text-sm">
+            Not a doctor?{' '}
+            <Link to="/signup" className="text-teal-600 hover:underline">
+              Sign up as a patient
+            </Link>
+          </div>
+        </div>
       </div>
-    </div>
+    </AuthLayout>
   );
 };
 
