@@ -12,7 +12,7 @@ import {
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => Promise<void>;
   appointmentId: string;
   patientName: string;
 }

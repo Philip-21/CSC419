@@ -14,6 +14,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
+import { toast } from "react-toastify"; 
 
 interface EditAppointmentModalProps {
   isOpen: boolean;
@@ -44,9 +45,10 @@ const EditAppointmentModal = ({
     e.preventDefault();
     try {
       await API.put(`/appointment/${appointmentid}`, form);
+      toast.success("Appointment updated successfully");
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to update appointment');
+      toast.error(err.response?.data?.error || 'Failed to update appointment');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import API from '../api';
+import { useState } from 'react';
 import { AppointmentResponse } from '../types';
 import {
   Calendar,
@@ -36,49 +35,11 @@ const formatDateTime = (isoString: string) => {
 interface AppointmentListProps {
   onEdit: (appointment: AppointmentResponse) => void;
   onDelete: (appointment: AppointmentResponse) => void;
+  appointments: AppointmentResponse[]
 }
 
-const AppointmentList = ({ onEdit, onDelete }: AppointmentListProps) => {
-  const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
+const AppointmentList = ({ appointments, onEdit, onDelete }: AppointmentListProps) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const userUUID = localStorage.getItem('userUUID');
-  const role = localStorage.getItem('role');
-
-  useEffect(() => {
-    // Assuming the logged-in user is a patient
-    if (userUUID) {
-      const patientRoute = `/appointment/pat-all/${userUUID}`;
-      const doctorRoute = `/appointment/doc-all`;
-      const isPatient = role === 'patient';
-      API.get(isPatient ? patientRoute : doctorRoute)
-        .then((res) => {
-          setAppointments((isPatient ? res.data : res.data.details) || []);
-        })
-        .catch((err) =>
-          setError(err.response?.data?.error || 'Failed to fetch appointments')
-        );
-    }
-    setLoading(false);
-  }, [userUUID, role]);
-
-  useEffect(() => {
-    // Assuming the logged-in user is a patient
-    if (userUUID) {
-      const patientRoute = `/appointment/pat-all/${userUUID}`;
-      const doctorRoute = `/appointment/doc-all`;
-      const isPatient = role === 'patient';
-      API.get(isPatient ? patientRoute : doctorRoute)
-        .then((res) => {
-          setAppointments((isPatient ? res.data : res.data.details) || []);
-        })
-        .catch((err) =>
-          setError(err.response?.data?.error || 'Failed to fetch appointments')
-        );
-    }
-    setLoading(false);
-  }, [userUUID, role]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

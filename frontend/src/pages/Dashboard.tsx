@@ -1,16 +1,23 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppointmentResponse } from '../types';
 import { Sidebar } from '../components/Sidebar';
 import AppointmentList from '../components/AppointmentList';
 import { Header } from '../components/Header';
 import EditAppointmentModal from '../components/EditAppointmentModal';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import API from '../api';
+import { toast } from "react-toastify";
+
 
 const Dashboard: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentResponse | null>(null);
+      const userUUID = localStorage.getItem('userUUID');
+      const role = localStorage.getItem('role');
+        const [loading, setLoading] = useState(true);
 
   const handleEdit = (appointment: AppointmentResponse) => {
     setSelectedAppointment(appointment);
@@ -22,11 +29,37 @@ const Dashboard: React.FC = () => {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleDeleteAppointment = () => {
-    // In a real app, you would delete the appointment from your database
-
-    setIsDeleteDialogOpen(false);
+  const handleDeleteAppointment = async () => {
+    const appointmentUUID = selectedAppointment?.appointment_uuid;
+    try {
+      await API.delete(`/delete/${appointmentUUID}`);
+      setAppointments(
+        appointments.filter((a) => a.appointment_uuid !== appointmentUUID)
+      );
+      toast.success("Appointment deleted successfully");
+      setIsDeleteDialogOpen(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Failed to delete appointment");
+      setIsDeleteDialogOpen(false);
+    }
   };
+
+    useEffect(() => {
+    // Assuming the logged-in user is a patient
+    if (userUUID) {
+      const patientRoute = `/appointment/pat-all/${userUUID}`;
+      const doctorRoute = `/appointment/doc-all`;
+      const isPatient = role === 'patient';
+      API.get(isPatient ? patientRoute : doctorRoute)
+        .then((res) => {
+          setAppointments((isPatient ? res.data : res.data.details) || []);
+        })
+        .catch((err) =>
+          toast.error(err.response?.data?.error || 'Failed to fetch appointments')
+        );
+    }
+    setLoading(false);
+  }, [userUUID, role]);
 
   return (
     <div className="flex h-screen w-full flex-col">
@@ -43,7 +76,8 @@ const Dashboard: React.FC = () => {
                 Manage patient appointments and schedules
               </p>
             </div>
-            <AppointmentList onEdit={handleEdit} onDelete={handleDelete} />
+            {loading && "Loading..."}
+            {!loading && appointments.length > 0 &&  <AppointmentList appointments={appointments} onEdit={handleEdit} onDelete={handleDelete} />}
           </div>
         </main>
       </div>
