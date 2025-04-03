@@ -126,7 +126,7 @@ const AppointmentList = ({
           <TableHeader>
             <TableRow>
               <TableHead>{role === 'patient' ? 'Doctor' : 'Patient'}</TableHead>
-              <TableHead className="hidden md:table-cell">ID</TableHead>
+              <TableHead className="hidden md:table-cell">Email</TableHead>
               <TableHead>
                 <div className="flex items-center">
                   <Calendar className="mr-2 h-4 w-4" />
@@ -182,13 +182,13 @@ const AppointmentList = ({
               !loading &&
               appointments.map((appointment) => (
                 <TableRow key={appointment.appointment_uuid}>
-                  <TableCell className="font-medium">
-                    {role === 'patient'
+                  <TableCell className="font-medium capitalize">
+                    {role === 'patient' && 'Dr'} {role === 'patient'
                       ? appointment.doctor_name
                       : appointment.patient_name}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {appointment.appointment_uuid}
+                    {role ==='doctor' ? appointment.patient_email : appointment.doctor_email}
                   </TableCell>
                   <TableCell>{appointment.appointment_date}</TableCell>
                   <TableCell>{appointment.appointment_time}</TableCell>

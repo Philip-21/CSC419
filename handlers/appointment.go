@@ -90,10 +90,11 @@ func (h *HandlerService) GetAllAppointmentByDoctor(ctx *gin.Context) {
 
 		responseAppointments = append(responseAppointments, models.AppointmentResponse{
 			DoctorEmail:        doctor.Email,
-			DoctorName:         doctor.FirstName,
+			DoctorName:         doctor.FirstName + " " + doctor.LastName,
 			AppointmentDetails: appointment.AppointmentDetails,
 			AppointmentTime:    appointment.AppointmentTime,
-			PatientName:        patient.FirstName,
+			AppointmentDate:    appointment.AppointmentDate,
+			PatientName:        patient.FirstName + " " + patient.LastName,
 			PatientEmail:       patient.Email,
 			AppointmentUUID:    appointment.AppointmentUUID,
 		})
