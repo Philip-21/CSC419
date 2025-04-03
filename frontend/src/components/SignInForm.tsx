@@ -14,18 +14,20 @@ import { Input } from './ui/input';
 import { LoginRequest, LoginResponse } from '../types';
 import API from '../api';
 
+import { toast } from 'react-toastify';
+
 const SignInForm = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState('patient');
   const [isLoading, setIsLoading] = useState(false);
   const [form, setForm] = useState<LoginRequest>({ email: '', password: '' });
-  const [error, setError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setIsLoading(true);
     e.preventDefault();
     try {
       const res = await API.post<{ details: LoginResponse }>(
@@ -35,9 +37,13 @@ const SignInForm = () => {
       localStorage.setItem('token', res.data.details.token);
       localStorage.setItem('userUUID', res.data.details.user_uuid);
       localStorage.setItem('role', res.data.details.role);
+      localStorage.setItem('first_name', res.data.details.first_name);
+      localStorage.setItem('last_name', res.data.details.last_name);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Login failed');
+      toast.error(err.response?.data?.error || 'Login failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,9 +66,10 @@ const SignInForm = () => {
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
-            id="email"
+            name="email"
             type="email"
             placeholder="name@example.com"
+            value={form.email}
             onChange={handleChange}
             required
           />
@@ -77,9 +84,10 @@ const SignInForm = () => {
           </div>
           <div className="relative">
             <Input
-              id="password"
+              name="password"
               type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
+              value={form.password}
               onChange={handleChange}
               required
             />

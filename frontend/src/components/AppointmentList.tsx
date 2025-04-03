@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AppointmentResponse } from '../types';
 import {
+  AlertCircle,
   Calendar,
   Clock,
   Filter,
@@ -25,41 +26,61 @@ import {
   TableRow,
 } from '../components/ui/table';
 import { Badge } from '../components/ui/badge';
-
-const formatDateTime = (isoString: string) => {
-  const date = new Date(isoString);
-  // Adjust formatting as needed; this will use the user's locale.
-  return date.toLocaleString();
-};
+import { Skeleton } from './ui/skeleton';
 
 interface AppointmentListProps {
   onEdit: (appointment: AppointmentResponse) => void;
   onDelete: (appointment: AppointmentResponse) => void;
-  appointments: AppointmentResponse[]
+  appointments: AppointmentResponse[];
+  loading: boolean;
+  onNewAppointment: () => void;
+  onCancelAllAppointments: () => void;
 }
 
-const AppointmentList = ({ appointments, onEdit, onDelete }: AppointmentListProps) => {
+const AppointmentList = ({
+  appointments,
+  loading,
+  onEdit,
+  onDelete,
+  onNewAppointment,
+  onCancelAllAppointments,
+}: AppointmentListProps) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const role = localStorage.getItem('role');
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'scheduled':
-        return (
-          <Badge className="bg-blue-500 hover:bg-blue-600">Scheduled</Badge>
-        );
-      case 'completed':
-        return (
-          <Badge className="bg-green-500 hover:bg-green-600">Completed</Badge>
-        );
-      case 'cancelled':
-        return (
-          <Badge className="bg-orange-500 hover:bg-orange-600">Cancelled</Badge>
-        );
-      case 'no-show':
-        return <Badge className="bg-red-500 hover:bg-red-600">No Show</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
+  const isAppointmentCompleted = (
+    appointment: AppointmentResponse
+  ): boolean => {
+    const now = new Date();
+
+    // Parse appointment date and time
+    const [year, month, day] = appointment.appointment_date
+      .split('-')
+      .map(Number);
+    const [hours, minutes] = appointment.appointment_time
+      .split(':')
+      .map(Number);
+
+    // Create appointment date object
+    const appointmentDate = new Date(year, month - 1, day, hours, minutes);
+
+    // Add 1 hour to appointment time (assuming each appointment takes an hour)
+    const appointmentEndDate = new Date(
+      appointmentDate.getTime() + 60 * 60 * 1000
+    );
+
+    // If appointment end time is in the past, it's completed
+    return appointmentEndDate < now;
+  };
+
+  const getStatusBadge = (appointment: AppointmentResponse) => {
+    const completed = isAppointmentCompleted(appointment);
+
+    return completed ? (
+      <Badge className="bg-green-500 hover:bg-green-600">Completed</Badge>
+    ) : (
+      <Badge className="bg-blue-500 hover:bg-blue-600">Scheduled</Badge>
+    );
   };
 
   return (
@@ -75,15 +96,28 @@ const AppointmentList = ({ appointments, onEdit, onDelete }: AppointmentListProp
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-start sm:flex-row sm:items-center gap-2">
           <Button variant="outline" size="sm">
             <Filter className="mr-2 h-4 w-4" />
             Filter
           </Button>
-          <Button size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            New Appointment
-          </Button>
+          {role === 'patient' && (
+            <>
+              <Button size="sm" onClick={onNewAppointment}>
+                <Plus className="h-4 w-4" />
+                New Appointment
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={onCancelAllAppointments}
+                className="flex items-center gap-2"
+              >
+                <AlertCircle className="h-4 w-4" />
+                Cancel All Appointments
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -91,7 +125,7 @@ const AppointmentList = ({ appointments, onEdit, onDelete }: AppointmentListProp
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Patient</TableHead>
+              <TableHead>{role === 'patient' ? 'Doctor' : 'Patient'}</TableHead>
               <TableHead className="hidden md:table-cell">ID</TableHead>
               <TableHead>
                 <div className="flex items-center">
@@ -105,33 +139,63 @@ const AppointmentList = ({ appointments, onEdit, onDelete }: AppointmentListProp
                   Time
                 </div>
               </TableHead>
-              <TableHead className="hidden md:table-cell">Doctor</TableHead>
+              <TableHead className="hidden md:table-cell">Details</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-[80px]"></TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {appointments.length === 0 ? (
+          <TableBody className="relative">
+            {loading &&
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell>
+                    <Skeleton className="h-6 w-[150px]" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-[300px]" />
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <Skeleton className="h-6 w-[120px]" />
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <Skeleton className="h-6 w-[80px]" />
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    <Skeleton className="h-6 w-[100px]" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-[90px]" />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Skeleton className="h-9 w-[80px] ml-auto" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            {appointments.length === 0 && !loading && (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center">
                   No appointments found.
                 </TableCell>
               </TableRow>
-            ) : (
+            )}{' '}
+            {appointments.length > 0 &&
+              !loading &&
               appointments.map((appointment) => (
                 <TableRow key={appointment.appointment_uuid}>
                   <TableCell className="font-medium">
-                    {appointment.patient_name}
+                    {role === 'patient'
+                      ? appointment.doctor_name
+                      : appointment.patient_name}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {appointment.patient_uuid}
+                    {appointment.appointment_uuid}
                   </TableCell>
                   <TableCell>{appointment.appointment_date}</TableCell>
                   <TableCell>{appointment.appointment_time}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {appointment.doctor_email}
+                  <TableCell className="hidden truncate md:table-cell">
+                    {appointment.appointment_details}
                   </TableCell>
-                  <TableCell>{getStatusBadge('completed')}</TableCell>
+                  <TableCell>{getStatusBadge(appointment)}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -154,8 +218,7 @@ const AppointmentList = ({ appointments, onEdit, onDelete }: AppointmentListProp
                     </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
+              ))}
           </TableBody>
         </Table>
       </div>

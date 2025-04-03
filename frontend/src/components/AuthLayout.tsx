@@ -26,12 +26,6 @@ export function AuthLayout({ children, title, description }: AuthLayoutProps) {
           </div>
         </div>
         <div className="hidden h-screen w-1/2 flex-col bg-[#0e9a8e] p-10 text-white md:flex">
-          <img
-            src="https://sdmntprpolandcentral.oaiusercontent.com/files/00000000-c60c-520a-9f76-153052119131/raw?se=2025-04-02T20%3A03%3A47Z&sp=r&sv=2024-08-04&sr=b&scid=df0feec4-1522-52ea-b578-08645ae93c13&skoid=cdb71e28-0a5b-4faa-8cf5-de6084d65b8f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-04-02T16%3A07%3A06Z&ske=2025-04-03T16%3A07%3A06Z&sks=b&skv=2024-08-04&sig=IUBHzFAZnEUm1HbyEo1y2ozvk8myV1MHLh9Nks%2BduPs%3D"
-            alt="image"
-            width={500}
-            className="mx-auto"
-          />
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">
               <p className="text-lg">

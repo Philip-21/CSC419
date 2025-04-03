@@ -8,6 +8,8 @@ import { Label } from '../components/ui/label';
 import { Input } from '../components/ui/input';
 import { Eye, EyeOff } from 'lucide-react';
 
+import { toast } from 'react-toastify';
+
 const SignupPatient: React.FC = () => {
   const [form, setForm] = useState<SignUpRequest>({
     first_name: '',
@@ -17,12 +19,14 @@ const SignupPatient: React.FC = () => {
   });
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setIsLoading(true);
     e.preventDefault();
     try {
       const res = await API.post<{ details: SignUpResponse }>(
@@ -32,9 +36,13 @@ const SignupPatient: React.FC = () => {
       localStorage.setItem('token', res.data.details.token);
       localStorage.setItem('userUUID', res.data.details.user_uuid);
       localStorage.setItem('role', res.data.details.role);
+      localStorage.setItem('first_name', res.data.details.first_name);
+      localStorage.setItem('last_name', res.data.details.last_name);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Signup failed');
+      toast.error(err.response?.data?.error || 'Signup failed');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -70,7 +78,7 @@ const SignupPatient: React.FC = () => {
           <div className="space-y-2">
             <Label className="block text-gray-700 mb-2">Email</Label>
             <Input
-              type="email"
+              name="email"
               name="email"
               value={form.email}
               onChange={handleChange}
@@ -86,7 +94,7 @@ const SignupPatient: React.FC = () => {
             </div>
             <div className="relative">
               <Input
-                id="password"
+                name="password"
                 value={form.password}
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
@@ -112,8 +120,8 @@ const SignupPatient: React.FC = () => {
             </div>
           </div>
           {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-          <Button type="submit" className="w-full">
-            Sign Up
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Signing up...' : 'Sign up'}
           </Button>
         </form>
         <div className="mt-4 space-y-1">

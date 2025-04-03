@@ -35,6 +35,7 @@ export interface AppointmentRequest {
   doctor_email: string;
   appointment_details: string;
   appointment_time: string;
+  appointment_date: string;
 }
 
 export interface AppointmentResponse {
@@ -48,12 +49,13 @@ export interface AppointmentResponse {
   // appointmentUUID: string;
 
   doctor_email: string;
+  doctor_name: string;
   patient_email: string;
   patient_name: string;
   patient_uuid?: string;
   appointment_details: string;
   appointment_time: string;
-  appointment_date?: string;
+  appointment_date: string;
   appointment_uuid: string;
 }
 

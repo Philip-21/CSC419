@@ -22,10 +22,6 @@ export function Header() {
     navigate('/');
   };
 
-  const initials = `${first_name?.charAt(0) ?? ''}${
-    last_name?.charAt(0) ?? ''
-  }`;
-
   return (
     <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background px-6">
       <div className="flex items-center gap-2 font-semibold">
@@ -43,7 +39,7 @@ export function Header() {
         </svg>
         <span>MediCare HIS</span>
       </div>
-      <div className="relative ml-4 flex-1 max-w-md">
+      <div className="hidden sm:relative ml-4 flex-1 max-w-md">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
@@ -52,7 +48,11 @@ export function Header() {
         />
       </div>
       <div className="ml-auto flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="rounded-full">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="hidden sm:block rounded-full"
+        >
           <Bell className="h-5 w-5" />
           <span className="sr-only">Notifications</span>
         </Button>
@@ -66,9 +66,8 @@ export function Header() {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium">Dr. Sarah Johnson</p>
-                <p className="text-xs text-muted-foreground">
-                  sarah.johnson@medicare.com
+                <p className="text-sm font-medium">
+                  {first_name} {last_name}
                 </p>
               </div>
             </DropdownMenuLabel>

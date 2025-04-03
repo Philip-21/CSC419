@@ -1,47 +1,44 @@
-import React, { useEffect, useState } from 'react';
-import API from '../api';
+import React, { useState } from 'react';
 import { DoctorResp } from '../types';
-import { Link } from 'react-router-dom';
+import { Header } from '../components/Header';
+import { Sidebar } from '../components/Sidebar';
+import { DoctorsTable } from '../components/DoctorsTable';
+import { DoctorDetailModal } from '../components/DoctorDetailModal';
 
 const DoctorList: React.FC = () => {
-  const [doctors, setDoctors] = useState<DoctorResp[]>([]);
-  const [error, setError] = useState('');
+  const [selectedDoctor, setSelectedDoctor] = useState<DoctorResp | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  useEffect(() => {
-    API.get('/doctors/all')
-      .then((res) => setDoctors(res.data || []))
-      .catch((err) =>
-        setError(err.response?.data?.error || 'Failed to fetch doctors')
-      );
-  }, []);
+  const handleViewDoctorDetails = (doctor: DoctorResp) => {
+    setSelectedDoctor(doctor);
+    setIsDetailModalOpen(true);
+  };
 
   return (
-    <div className="max-w-3xl mx-auto mt-10">
-      <h2 className="text-2xl mb-4">Available Doctors</h2>
-      {error && <p className="text-red-500">{error}</p>}
-      <ul className="divide-y">
-        {doctors.map((doctor) => (
-          <li
-            key={doctor.doctor_uuid}
-            className="p-4 flex justify-between items-center"
-          >
+    <div className="flex h-screen w-full flex-col">
+      <Header />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar />
+        <main className="flex-1 overflow-y-auto bg-muted/40 p-6">
+          <div className="mx-auto max-w-6xl space-y-6">
             <div>
-              <p>
-                <strong>
-                  {doctor.first_name} {doctor.last_name}
-                </strong>
+              <h1 className="text-3xl font-bold tracking-tight">Our Doctors</h1>
+              <p className="text-muted-foreground">
+                Browse our team of experienced healthcare professionals
               </p>
-              <p>{doctor.doctor_email}</p>
             </div>
-            <Link
-              to={`/doctors/${doctor.doctor_uuid}`}
-              className="text-blue-500"
-            >
-              View Details
-            </Link>
-          </li>
-        ))}
-      </ul>
+            <DoctorsTable onViewDetails={handleViewDoctorDetails} />
+          </div>
+        </main>
+      </div>
+
+      {selectedDoctor && (
+        <DoctorDetailModal
+          doctor={selectedDoctor}
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

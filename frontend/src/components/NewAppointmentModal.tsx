@@ -1,46 +1,50 @@
-import React, { useEffect, useState } from 'react';
-import API from '../api';
-import { AppointmentRequest, AppointmentResponse, DoctorResp } from '../types';
+'use client';
 
+import type React from 'react';
+
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '../components/ui/dialog';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Textarea } from '../components/ui/textarea';
-import { toast } from 'react-toastify';
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from './ui/select';
+} from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
+import { AppointmentRequest, DoctorResp } from '../types';
+import API from '../api';
+import { toast } from 'react-toastify';
 
-interface EditAppointmentModalProps {
+interface NewAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
-  appointment: AppointmentResponse;
+  onSave: (appointment: AppointmentRequest) => Promise<void>;
+  loading: boolean;
 }
 
-const EditAppointmentModal = ({
+export function NewAppointmentModal({
   isOpen,
   onClose,
-  appointment,
-}: EditAppointmentModalProps) => {
-  const [form, setForm] = useState<AppointmentRequest>({
-    doctor_email: appointment.doctor_email,
-    appointment_details: appointment.appointment_details,
-    appointment_time: appointment.appointment_time,
-    appointment_date: appointment.appointment_date,
+  onSave,
+  loading,
+}: NewAppointmentModalProps) {
+  const [formData, setFormData] = useState<AppointmentRequest>({
+    doctor_email: '',
+    appointment_details: '',
+    appointment_time: '',
+    appointment_date: '',
   });
-  const [loading, setLoading] = useState(false);
 
   const [doctors, setDoctors] = useState<DoctorResp[]>([]);
   const [isLoadingDoctors, setIsLoadingDoctors] = useState(true);
@@ -62,57 +66,42 @@ const EditAppointmentModal = ({
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => setForm({ ...form, [e.target.name]: e.target.value });
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSelectChange = (name: string, value: string) => {
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    setLoading(true);
     e.preventDefault();
-    try {
-      await API.put(`/appointment/${appointment.appointment_uuid}`, form);
-      toast.success('Appointment updated successfully');
-      onClose();
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || 'Failed to update appointment');
-    } finally {
-      setLoading(false);
-    }
+    await onSave(formData);
+    setFormData({
+      doctor_email: '',
+      appointment_details: '',
+      appointment_time: '',
+      appointment_date: '',
+    });
+  };
+
+  const isFormValid = () => {
+    return (
+      formData.doctor_email.trim() !== '' &&
+      formData.appointment_date.trim() !== '' &&
+      formData.appointment_time.trim() !== ''
+    );
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Edit Appointment</DialogTitle>
+          <DialogTitle>Schedule New Appointment</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="date">Date</Label>
-                <Input
-                  type="date"
-                  name="appointment_date"
-                  value={form.appointment_date}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="time">Time</Label>
-                <Input
-                  type="time"
-                  name="appointment_time"
-                  value={form.appointment_time}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
-
             <div className="space-y-2">
               <Label htmlFor="doctor">Doctor</Label>
               {isLoadingDoctors ? (
@@ -124,7 +113,7 @@ const EditAppointmentModal = ({
                 </div>
               ) : (
                 <Select
-                  value={form.doctor_email}
+                  value={formData.doctor_email}
                   onValueChange={(value) =>
                     handleSelectChange('doctor_email', value)
                   }
@@ -146,30 +135,56 @@ const EditAppointmentModal = ({
                 </Select>
               )}
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="notes">Details</Label>
+              <Label htmlFor="notes">Appointment Details</Label>
               <Textarea
                 name="appointment_details"
-                value={form.appointment_details}
+                value={formData.appointment_details}
                 onChange={handleChange}
-                required
                 rows={3}
+                placeholder="Enter appointment reason and any relevant details"
               />
             </div>
-          </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="appointment_date">Date</Label>
+                <Input
+                  id="appointment_date"
+                  name="appointment_date"
+                  type="date"
+                  value={formData.appointment_date}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="appointment_time">Time</Label>
+                <Input
+                  id="appointment_time"
+                  name="appointment_time"
+                  type="time"
+                  value={formData.appointment_time}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+          </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">
-              {loading ? 'Saving...' : 'Save Changes'}
+            <Button
+              type="submit"
+              disabled={!isFormValid() || isLoadingDoctors || loading}
+            >
+              {loading ? 'Scheduling...' : 'Schedule Appointment'}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   );
-};
-
-export default EditAppointmentModal;
+}

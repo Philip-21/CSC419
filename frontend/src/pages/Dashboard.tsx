@@ -1,23 +1,29 @@
 import { useEffect, useState } from 'react';
-import { AppointmentResponse } from '../types';
+import { AppointmentRequest, AppointmentResponse } from '../types';
 import { Sidebar } from '../components/Sidebar';
 import AppointmentList from '../components/AppointmentList';
 import { Header } from '../components/Header';
 import EditAppointmentModal from '../components/EditAppointmentModal';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import API from '../api';
-import { toast } from "react-toastify";
-
+import { toast } from 'react-toastify';
+import { NewAppointmentModal } from '../components/NewAppointmentModal';
+import { CancelAllConfirmationDialog } from '../components/CancelAllConfirmationDialog';
+import { AppointmentStats } from '../components/AppointmentStats';
 
 const Dashboard: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
+  const [isNewAppointmentModalOpen, setIsNewAppointmentModalOpen] =
+    useState(false);
+  const [isCancelAllDialogOpen, setIsCancelAllDialogOpen] = useState(false);
+
+  const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
   const [selectedAppointment, setSelectedAppointment] =
     useState<AppointmentResponse | null>(null);
-      const userUUID = localStorage.getItem('userUUID');
-      const role = localStorage.getItem('role');
-        const [loading, setLoading] = useState(true);
+  const userUUID = localStorage.getItem('userUUID');
+  const role = localStorage.getItem('role');
+  const [loading, setLoading] = useState(true);
 
   const handleEdit = (appointment: AppointmentResponse) => {
     setSelectedAppointment(appointment);
@@ -36,29 +42,59 @@ const Dashboard: React.FC = () => {
       setAppointments(
         appointments.filter((a) => a.appointment_uuid !== appointmentUUID)
       );
-      toast.success("Appointment deleted successfully");
+      toast.success('Appointment deleted successfully');
       setIsDeleteDialogOpen(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.error || "Failed to delete appointment");
+      toast.error(err.response?.data?.error || 'Failed to delete appointment');
       setIsDeleteDialogOpen(false);
     }
   };
 
-    useEffect(() => {
-    // Assuming the logged-in user is a patient
-    if (userUUID) {
-      const patientRoute = `/appointment/pat-all/${userUUID}`;
-      const doctorRoute = `/appointment/doc-all`;
-      const isPatient = role === 'patient';
-      API.get(isPatient ? patientRoute : doctorRoute)
-        .then((res) => {
-          setAppointments((isPatient ? res.data : res.data.details) || []);
-        })
-        .catch((err) =>
-          toast.error(err.response?.data?.error || 'Failed to fetch appointments')
-        );
+  const handleCreateAppointment = async (form: AppointmentRequest) => {
+    setLoading(true);
+    try {
+      const result = await API.post('/appointment/book', form);
+      toast.success('Appointment booked successfully!');
+      setAppointments((prev) => [...prev, result.data.details]);
+      setIsNewAppointmentModalOpen(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to book appointment');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
+  };
+
+  const handleCancelAllAppointments = async () => {
+    try {
+      await API.delete(`/delete-all/${userUUID}`);
+      setAppointments([]);
+      toast.success('All appointments cancelled successfully');
+      setIsDeleteDialogOpen(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Failed to cancel appointments');
+      setIsDeleteDialogOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      if (userUUID) {
+        const patientRoute = `/appointment/pat-all/${userUUID}`;
+        const doctorRoute = `/appointment/doc-all`;
+        const isPatient = role === 'patient';
+        API.get(isPatient ? patientRoute : doctorRoute)
+          .then((res) => {
+            setAppointments((isPatient ? res.data : res.data.details) || []);
+          })
+          .catch((err) =>
+            toast.error(
+              err.response?.data?.error || 'Failed to fetch appointments'
+            )
+          )
+          .finally(() => setLoading(false));
+      }
+    };
+    fetchAppointments();
   }, [userUUID, role]);
 
   return (
@@ -73,30 +109,64 @@ const Dashboard: React.FC = () => {
                 Appointments
               </h1>
               <p className="text-muted-foreground">
-                Manage patient appointments and schedules
+                {role === 'patient'
+                  ? 'Manage your appointments and access doctor information'
+                  : 'Manage patient appointments and schedules'}
               </p>
             </div>
-            {loading && "Loading..."}
-            {!loading && appointments.length > 0 &&  <AppointmentList appointments={appointments} onEdit={handleEdit} onDelete={handleDelete} />}
+            <AppointmentStats appointments={appointments} />
+
+            <AppointmentList
+              appointments={appointments}
+              loading={loading}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onNewAppointment={() => setIsNewAppointmentModalOpen(true)}
+              onCancelAllAppointments={() => setIsCancelAllDialogOpen(true)}
+            />
           </div>
         </main>
       </div>
       {selectedAppointment && (
         <>
-          <EditAppointmentModal
-            isOpen={isEditModalOpen}
-            onClose={() => setIsEditModalOpen(false)}
-            appointment={selectedAppointment}
-          />
-          <DeleteConfirmationModal
-            isOpen={isDeleteDialogOpen}
-            onClose={() => setIsDeleteDialogOpen(false)}
-            onConfirm={handleDeleteAppointment}
-            patientName={selectedAppointment.patient_name}
-            appointmentId={selectedAppointment.appointment_uuid}
-          />
+          {isEditModalOpen && (
+            <EditAppointmentModal
+              isOpen={isEditModalOpen}
+              onClose={async () =>
+                setTimeout(() => setIsEditModalOpen(false), 200)
+              }
+              appointment={selectedAppointment}
+            />
+          )}
+          {isDeleteDialogOpen && (
+            <DeleteConfirmationModal
+              isOpen={isDeleteDialogOpen}
+              onClose={async () =>
+                setTimeout(() => setIsDeleteDialogOpen(false), 200)
+              }
+              onConfirm={handleDeleteAppointment}
+              patientName={selectedAppointment.patient_name}
+              appointmentId={selectedAppointment.appointment_uuid}
+            />
+          )}
         </>
       )}
+      {isNewAppointmentModalOpen && (
+        <NewAppointmentModal
+          isOpen={isNewAppointmentModalOpen}
+          onClose={async () =>
+            setTimeout(() => setIsNewAppointmentModalOpen(false), 200)
+          }
+          loading={loading}
+          onSave={handleCreateAppointment}
+        />
+      )}
+      <CancelAllConfirmationDialog
+        isOpen={isCancelAllDialogOpen}
+        onClose={() => setIsCancelAllDialogOpen(false)}
+        onConfirm={handleCancelAllAppointments}
+        appointmentCount={appointments.length}
+      />
     </div>
   );
 
