@@ -132,6 +132,7 @@ const Dashboard: React.FC = () => {
           {isEditModalOpen && (
             <EditAppointmentModal
               isOpen={isEditModalOpen}
+              setAppointments={setAppointments}
               onClose={async () =>
                 setTimeout(() => setIsEditModalOpen(false), 200)
               }

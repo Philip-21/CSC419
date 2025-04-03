@@ -27,12 +27,14 @@ interface EditAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   appointment: AppointmentResponse;
+  setAppointments: React.Dispatch<React.SetStateAction<AppointmentResponse[]>>;
 }
 
 const EditAppointmentModal = ({
   isOpen,
   onClose,
   appointment,
+  setAppointments,
 }: EditAppointmentModalProps) => {
   const [form, setForm] = useState<AppointmentRequest>({
     doctor_email: appointment.doctor_email,
@@ -73,6 +75,13 @@ const EditAppointmentModal = ({
     e.preventDefault();
     try {
       await API.put(`/appointment/${appointment.appointment_uuid}`, form);
+      setAppointments((prev) => {
+        const index = prev.findIndex(
+          (a) => a.appointment_uuid === appointment.appointment_uuid
+        );
+        prev[index] = { ...prev[index], ...form };
+        return prev;
+      });
       toast.success('Appointment updated successfully');
       onClose();
     } catch (err: any) {
