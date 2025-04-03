@@ -17,7 +17,6 @@ const SignupPatient: React.FC = () => {
     email: '',
     password: '',
   });
-  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -79,7 +78,6 @@ const SignupPatient: React.FC = () => {
             <Label className="block text-gray-700 mb-2">Email</Label>
             <Input
               name="email"
-              name="email"
               value={form.email}
               onChange={handleChange}
               required
@@ -119,7 +117,6 @@ const SignupPatient: React.FC = () => {
               </Button>
             </div>
           </div>
-          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Signing up...' : 'Sign up'}
           </Button>
