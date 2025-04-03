@@ -111,6 +111,7 @@ func GetPatientAppointments(db *gorm.DB, patientUUID string) ([]models.Appointme
 		}
 		appointmentRsp = append(appointmentRsp, models.AppointmentResponse{
 			DoctorEmail:        doctor.Email,
+			DoctorName:         doctor.FirstName,
 			AppointmentDetails: appointment.AppointmentDetails,
 			AppointmentTime:    appointment.AppointmentTime,
 			AppointmentDate:    appointment.AppointmentDate,
